@@ -1,14 +1,730 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Module 4 Solution Starter</title>
-  <script src="SpeakHello.js"></script>
-  <script src="SpeakGoodBye.js"></script>
-  <script src="script.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPD Money - Employee Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f8fafc;
+      color: #334155;
+      line-height: 1.6;
+    }
+
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: #ffffff;
+      border-right: 1px solid #e2e8f0;
+      padding: 1.5rem 0;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      transition: transform 0.25s ease;
+    }
+
+    .sidebar.hidden {
+      transform: translateX(-100%);
+    }
+
+    .logo {
+      padding: 0 1.5rem 1.25rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 1rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #006BA5, #0084CC);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .nav-menu {
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-bottom: 0.25rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      text-decoration: none;
+      color: #64748b;
+      transition: all 0.2s;
+      border-right: 3px solid transparent;
+    }
+
+    .nav-link:hover {
+      background-color: #E6F1F8;
+      color: #006BA5;
+    }
+
+    .nav-link.active {
+      background-color: #E6F1F8;
+      color: #006BA5;
+      border-right-color: #006BA5;
+      font-weight: 600;
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: 2rem;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      background: white;
+      padding: 1rem 1.25rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      align-items: center;
+      justify-content: center;
+      color: #0f172a;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .search {
+      position: relative;
+      width: 360px;
+      max-width: 100%;
+    }
+
+    .search input {
+      width: 100%;
+      border: 1px solid #e2e8f0;
+      padding: 0.625rem 2.5rem 0.625rem 2.5rem;
+      border-radius: 999px;
+      outline: none;
+      transition: border-color 0.2s;
+      background: #f8fafc;
+    }
+
+    .search input:focus {
+      border-color: #94a3b8;
+      background: #fff;
+    }
+
+    .search .fa-magnifying-glass {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    .search .fa-sliders {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .notif-btn, .add-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.6rem 0.9rem;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      color: #0f172a;
+      cursor: pointer;
+    }
+
+    .add-btn {
+      background: #006BA5;
+      color: #fff;
+      border: none;
+    }
+
+    .user {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-left: 1rem;
+      border-left: 1px solid #e2e8f0;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #fb7185, #f97316);
+      border-radius: 999px;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .user .name {
+      font-weight: 600;
+      color: #0f172a;
+      font-size: 0.95rem;
+      line-height: 1.2;
+    }
+
+    .user .role {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: -4px;
+    }
+
+    /* KPI Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .card .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .card .label {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .card .value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+
+    .trend {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #16a34a;
+    }
+
+    .trend.down {
+      color: #dc2626;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+
+    .icon-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      color: #006BA5;
+      background: #E6F1F8;
+      border: 1px solid #cfe2ef;
+    }
+
+    /* Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .panel {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .panel-title {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .panel-body {
+      padding: 1rem;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.95rem;
+    }
+
+    th {
+      color: #64748b;
+      font-weight: 700;
+      background: #f8fafc;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid;
+    }
+
+    .status.paid {
+      background: #ecfccb;
+      color: #3f6212;
+      border-color: #bef264;
+    }
+
+    .status.pending {
+      background: #fff7ed;
+      color: #9a3412;
+      border-color: #fed7aa;
+    }
+
+    .status.overdue {
+      background: #fee2e2;
+      color: #991b1b;
+      border-color: #fecaca;
+    }
+
+    /* Right column widgets */
+    .announcement {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      background: #f8fafc;
+    }
+
+    .progress {
+      height: 8px;
+      width: 100%;
+      background: #f1f5f9;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      width: 62%;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      padding: 1rem 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: inline-flex;
+      }
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-left: 0;
+        padding: 1rem;
+      }
+      .header {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+      .search {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Module 4 Solution Starter</h1>
-  <p>open console to see the output</p>
+  <div class="dashboard">
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <div class="logo-container">
+          <div class="logo-icon">VP</div>
+          <div class="logo-text">VPD Money</div>
+        </div>
+      </div>
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item"><a class="nav-link active" href="#"><span class="nav-icon"><i class="fa-solid fa-gauge"></i></span>Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><span class="nav-icon"><i class="fa-solid fa-users"></i></span>Employees</a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><span class="nav-icon"><i class="fa-solid fa-money-check-dollar"></i></span>Payroll</a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><span class="nav-icon"><i class="fa-regular fa-calendar-check"></i></span>Attendance</a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><span class="nav-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>Expenses</a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><span class="nav-icon"><i class="fa-solid fa-hand-holding-dollar"></i></span>Loans</a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Settings</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-left">
+          <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+          <h1 style="font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; color: #0f172a;">Employee Dashboard</h1>
+        </div>
+        <div class="search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Search employees, payrolls, or actions" aria-label="Search" />
+          <i class="fa-solid fa-sliders"></i>
+        </div>
+        <div class="header-right">
+          <button class="notif-btn" aria-label="Notifications"><i class="fa-regular fa-bell"></i></button>
+          <button class="add-btn"><i class="fa-solid fa-plus"></i><span>Add Employee</span></button>
+          <div class="user">
+            <div class="avatar">AO</div>
+            <div>
+              <div class="name">Alex Okafor</div>
+              <div class="role">HR Manager</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="cards">
+        <div class="card">
+          <div class="card-top">
+            <span class="label">Total Employees</span>
+            <span class="icon-pill"><i class="fa-solid fa-users"></i></span>
+          </div>
+          <div class="value">248</div>
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
+            <span class="trend"><i class="fa-solid fa-arrow-up"></i> 3.2%</span>
+            <span class="badge"><i class="fa-regular fa-clock"></i> This month</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <span class="label">Active Payrolls</span>
+            <span class="icon-pill"><i class="fa-solid fa-money-check-dollar"></i></span>
+          </div>
+          <div class="value">12</div>
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
+            <span class="trend"><i class="fa-solid fa-arrow-up"></i> 1.1%</span>
+            <span class="badge"><i class="fa-regular fa-calendar"></i> Due in 5 days</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <span class="label">Pending Leave</span>
+            <span class="icon-pill"><i class="fa-regular fa-calendar-check"></i></span>
+          </div>
+          <div class="value">7</div>
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
+            <span class="trend down"><i class="fa-solid fa-arrow-down"></i> 0.8%</span>
+            <span class="badge"><i class="fa-regular fa-user"></i> Approvals</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <span class="label">Loan Requests</span>
+            <span class="icon-pill"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+          </div>
+          <div class="value">4</div>
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
+            <span class="trend"><i class="fa-solid fa-arrow-up"></i> 2.5%</span>
+            <span class="badge"><i class="fa-regular fa-file-lines"></i> New</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Recent Payroll Activity</div>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="notif-btn"><i class="fa-solid fa-download"></i> Export</button>
+              <button class="notif-btn"><i class="fa-solid fa-filter"></i> Filter</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <table>
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Department</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jane Doe</td>
+                  <td>Engineering</td>
+                  <td>Aug 14, 2025</td>
+                  <td>$4,600</td>
+                  <td><span class="status paid">Paid</span></td>
+                </tr>
+                <tr>
+                  <td>Michael Lee</td>
+                  <td>Product</td>
+                  <td>Aug 14, 2025</td>
+                  <td>$4,100</td>
+                  <td><span class="status pending">Pending</span></td>
+                </tr>
+                <tr>
+                  <td>Sarah Johnson</td>
+                  <td>Design</td>
+                  <td>Aug 13, 2025</td>
+                  <td>$3,900</td>
+                  <td><span class="status paid">Paid</span></td>
+                </tr>
+                <tr>
+                  <td>James O.</td>
+                  <td>Finance</td>
+                  <td>Aug 12, 2025</td>
+                  <td>$5,250</td>
+                  <td><span class="status overdue">Overdue</span></td>
+                </tr>
+                <tr>
+                  <td>Linda K.</td>
+                  <td>HR</td>
+                  <td>Aug 11, 2025</td>
+                  <td>$3,450</td>
+                  <td><span class="status paid">Paid</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Team Availability</div>
+            <span class="badge"><i class="fa-regular fa-calendar-days"></i> This week</span>
+          </div>
+          <div class="panel-body">
+            <div class="announcement">
+              <span class="icon-pill" style="min-width:36px;"><i class="fa-regular fa-face-smile"></i></span>
+              <div>
+                <div style="font-weight:700; color:#0f172a;">82% In Office</div>
+                <div style="color:#64748b; font-size:0.9rem;">Most teams are working on-site today.</div>
+              </div>
+            </div>
+            <div class="announcement">
+              <span class="icon-pill" style="min-width:36px;"><i class="fa-solid fa-house-laptop"></i></span>
+              <div style="flex:1;">
+                <div style="font-weight:700; color:#0f172a;">Remote Work</div>
+                <div class="progress" aria-label="Remote work progress">
+                  <span style="width:38%"></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; color:#64748b; font-size:0.85rem; margin-top:0.25rem;">
+                  <span>0%</span>
+                  <span>38%</span>
+                </div>
+              </div>
+            </div>
+            <div class="announcement">
+              <span class="icon-pill" style="min-width:36px;"><i class="fa-solid fa-paper-plane"></i></span>
+              <div>
+                <div style="font-weight:700; color:#0f172a;">3 Pending Leave Requests</div>
+                <div style="color:#64748b; font-size:0.9rem;">HR review required by Friday.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Employees</div>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="notif-btn"><i class="fa-solid fa-plus"></i> New</button>
+            <button class="notif-btn"><i class="fa-solid fa-upload"></i> Import</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Email</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Emeka Obi</td>
+                <td>Senior Backend Engineer</td>
+                <td>Engineering</td>
+                <td>emeka.obi@company.com</td>
+                <td><span class="status paid">Active</span></td>
+              </tr>
+              <tr>
+                <td>Aisha Bello</td>
+                <td>Product Manager</td>
+                <td>Product</td>
+                <td>aisha.bello@company.com</td>
+                <td><span class="status pending">Probation</span></td>
+              </tr>
+              <tr>
+                <td>Victor Ade</td>
+                <td>UX Designer</td>
+                <td>Design</td>
+                <td>victor.ade@company.com</td>
+                <td><span class="status paid">Active</span></td>
+              </tr>
+              <tr>
+                <td>Chioma N.</td>
+                <td>Finance Analyst</td>
+                <td>Finance</td>
+                <td>chioma.n@company.com</td>
+                <td><span class="status overdue">Inactive</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="footer">© 2025 VPD Money. All rights reserved.</div>
+    </main>
+  </div>
+
+  <script>
+    const menuToggleButton = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    function updateSidebarForViewport() {
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        sidebar.classList.add('hidden');
+      } else {
+        sidebar.classList.remove('hidden', 'show');
+      }
+    }
+
+    updateSidebarForViewport();
+    window.addEventListener('resize', updateSidebarForViewport);
+
+    menuToggleButton?.addEventListener('click', function () {
+      sidebar.classList.toggle('show');
+      sidebar.classList.toggle('hidden');
+    });
+  </script>
 </body>
 </html>
